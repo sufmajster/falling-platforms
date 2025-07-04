@@ -3,6 +3,7 @@ const ctx = canvas.getContext('2d');
 
 const GAME_WIDTH = canvas.width;
 const GAME_HEIGHT = canvas.height;
+const GRAVITY = 0.5;
 
 const COLORS = {
     background: '#000000',
@@ -51,8 +52,19 @@ function draw() {
     ctx.fillRect(player.x, player.y, player.width, player.height);
 }
 
+function checkCollision(obj1, obj2) {
+    return (
+        obj1.x < obj2.x + obj2.width &&
+        obj1.x + obj1.width > obj2.x &&
+        obj1.y < obj2.y + obj2.height &&
+        obj1.y + obj1.height > obj2.y   
+    );
+}
+
 function update() {
     player.velocityX = 0;
+  
+  
     
     if (keys['ArrowLeft']) {
         player.velocityX = -player.speed;
@@ -60,8 +72,20 @@ function update() {
     if (keys['ArrowRight']) {
         player.velocityX = player.speed;
     }
+
+    player.velocityY += GRAVITY;
     
     player.x += player.velocityX;
+    player.y += player.velocityY;
+
+    platforms.forEach(platform => {
+        if(checkCollision(player, platform)) {
+            if (player.velocityY > 0) {
+                player.y = platform.y - player.height;
+                player.velocityY = 0;
+            }
+        }
+    })
 }
 
 function gameLoop() {
