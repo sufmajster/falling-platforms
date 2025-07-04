@@ -4,9 +4,10 @@ const ctx = canvas.getContext('2d');
 const GAME_WIDTH = canvas.width;
 const GAME_HEIGHT = canvas.height;
 const GRAVITY = 0.3;
+const FLOOR_HEIGHT = 100;
 let cameraY = 0;
 let score = 0;
-let playerLowestY = 100;
+let currentFloor = 0;
 
 const platforms = [];
 let lowestPlatformY = 500;
@@ -105,9 +106,10 @@ function update() {
 
     player.y += player.velocityY;
 
-    if(player.y > playerLowestY) {
-        playerLowestY = player.y;
-        score++;
+    let newFloor = Math.floor(player.y / FLOOR_HEIGHT);
+    if (newFloor > currentFloor) {
+        score += (newFloor - currentFloor);
+        currentFloor = newFloor;
     }
 
     platforms.forEach(platform => {
