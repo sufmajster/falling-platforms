@@ -16,19 +16,18 @@ const player = {
     x: 400,
     y: 100,
     width: 20,
-    height: 20,
+    height: 50,
     velocityX: 0,
     velocityY: 0,
     speed: 5,
 }
 
-const platforms = [
-    { x: 350, y: 150, width: 100, height: 20 },
-    { x: 200, y: 250, width: 100, height: 20 },
-    { x: 500, y: 350, width: 100, height: 20 },
-    { x: 300, y: 450, width: 100, height: 20 },
-    { x: 150, y: 550, width: 100, height: 20 }
-];
+const platforms = [];
+let lowestPlatformY = 500;
+
+for(let i = 0; i < 10; i++) {
+    generatePlatform();
+}
 
 const keys = {};
 
@@ -62,11 +61,20 @@ function checkCollision(obj1, obj2) {
     );
 }
 
+function generatePlatform() {
+    const platform = {
+        x: Math.random() * (GAME_WIDTH - 100),
+        y: lowestPlatformY,
+        width: 200,
+        height: 20, 
+    }
+    platforms.push(platform);
+    lowestPlatformY += 100;
+}
+
 function update() {
     player.velocityX = 0;
   
-  
-    
     if (keys['ArrowLeft']) {
         player.velocityX = -player.speed;
     }
@@ -89,6 +97,10 @@ function update() {
     })
 
     cameraY = player.y - GAME_HEIGHT / 2;
+
+    if (player.y > lowestPlatformY - 500) {
+        generatePlatform();
+    }
 }
 
 function gameLoop() {
