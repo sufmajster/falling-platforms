@@ -11,6 +11,7 @@ let currentFloor = 0;
 let health = 100;
 let lavaTimer = 0;
 let onLava = false;
+let gameState = 'playing';
 
 const platforms = [];
 let lowestPlatformY = 500;
@@ -54,28 +55,49 @@ document.addEventListener('keyup', (e) => {
 });
 
 function draw() {
-    ctx.fillStyle = COLORS.background;
-    ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+    if (gameState === 'playing') {
+        ctx.fillStyle = COLORS.background;
+        ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
-    platforms.forEach(platform => {
-        const image = platform.type === 'lava' ? lavaImage : platformImage;
-        ctx.drawImage(image, platform.x, platform.y - cameraY, platform.width, platform.height);
-    });
+        platforms.forEach(platform => {
+            const image = platform.type === 'lava' ? lavaImage : platformImage;
+            ctx.drawImage(image, platform.x, platform.y - cameraY, platform.width, platform.height);
+        });
 
-    ctx.fillStyle = COLORS.player;
-    ctx.drawImage(playerImage, player.x, player.y - cameraY, player.width, player.height);
+        ctx.fillStyle = COLORS.player;
+        ctx.drawImage(playerImage, player.x, player.y - cameraY, player.width, player.height);
 
-    ctx.fillStyle = 'white';
-    ctx.font = '20px Arial';
-    ctx.fillText(`Score: ${score}`, 10, 30);    // Zielony pasek zdrowia w prawym górnym rogu
-    ctx.fillStyle = getHealtColor(health);
-    ctx.fillRect(GAME_WIDTH - 210, 20, (health / 100) * 200, 20);
-    ctx.strokeStyle = 'white';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(GAME_WIDTH - 210, 20, 200, 20);
+        ctx.fillStyle = 'white';
+        ctx.font = '20px Arial';
+        ctx.fillText(`Score: ${score}`, 10, 30);
+        
+        ctx.fillStyle = getHealthColor(health);
+        ctx.fillRect(GAME_WIDTH - 210, 20, (health / 100) * 200, 20);
+        ctx.strokeStyle = 'white';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(GAME_WIDTH - 210, 20, 200, 20);
+        
+    } else if (gameState === 'gameOver') {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+        ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+        
+        ctx.fillStyle = 'red';
+        ctx.font = '48px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('GAME OVER', GAME_WIDTH / 2, GAME_HEIGHT / 2 - 50);
+        
+        ctx.fillStyle = 'white';
+        ctx.font = '24px Arial';
+        ctx.fillText(`Your Score: ${score}`, GAME_WIDTH / 2, GAME_HEIGHT / 2 + 20);
+        
+        ctx.font = '20px Arial';
+        ctx.fillText('Press SPACE to Play Again', GAME_WIDTH / 2, GAME_HEIGHT / 2 + 80);
+        
+        ctx.textAlign = 'start';
+    }
 }
 
-function getHealtColor() {
+function getHealthColor() {
     if (health > 80) {
         return 'green';
     } else if (health > 60) {
@@ -162,6 +184,10 @@ function update() {
         }
     } else {
         lavaTimer = 0;
+    }
+
+    if (health <= 0) {
+        gameState = 'gameOver';
     }
 
     cameraY = player.y - GAME_HEIGHT / 2;
