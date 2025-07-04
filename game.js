@@ -5,6 +5,8 @@ const GAME_WIDTH = canvas.width;
 const GAME_HEIGHT = canvas.height;
 const GRAVITY = 0.3;
 const FLOOR_HEIGHT = 100;
+const PARACHUTE_DURATION = 300;
+
 let cameraY = 0;
 let score = 0;
 let currentFloor = 0;
@@ -12,6 +14,9 @@ let health = 100;
 let lavaTimer = 0;
 let onLava = false;
 let gameState = 'playing';
+let parachuteActive = false;
+let parachuteTimer = 0;
+
 
 const platforms = [];
 let lowestPlatformY = 500;
@@ -19,11 +24,19 @@ let lowestPlatformY = 500;
 const playerImage = new Image();
 playerImage.src = 'graphics/player.png';
 
+const playerWithParachuteImage = new Image();
+playerWithParachuteImage.src = 'graphics/player-with-parachute.png';
+
 const platformImage = new Image();
 platformImage.src = 'graphics/ground-floor.png';
 
 const lavaImage = new Image();
 lavaImage.src = 'graphics/lava-floor.png';
+
+const parachuteImage = new Image();
+parachuteImage.src = 'graphics/parachute.png';
+
+const parachutes = [];
 
 const COLORS = {
     background: '#000000',
@@ -67,8 +80,14 @@ function draw() {
             ctx.drawImage(image, platform.x, platform.y - cameraY, platform.width, platform.height);
         });
 
-        ctx.fillStyle = COLORS.player;
-        ctx.drawImage(playerImage, player.x, player.y - cameraY, player.width, player.height);
+        const currentPlayerImage = parachuteActive ? playerWithParachuteImage : playerImage;
+        ctx.drawImage(currentPlayerImage, player.x, player.y - cameraY, player.width, player.height);
+
+        parachutes.forEach(parachute => {
+            if (!parachute.collected) {
+                ctx.drawImage(parachuteImage, parachute.x, parachute.y - cameraY, parachute.width, parachute.height);
+            }
+        });
 
         ctx.fillStyle = 'white';
         ctx.font = '20px Arial';
@@ -132,8 +151,23 @@ function generatePlatform() {
         type: isLava ? 'lava' : 'normal'
     }
     platforms.push(platform);
+    
+    // Add parachute on normal platforms with 20% chance
+    if (!isLava && Math.random() < 0.2) {
+        const parachute = {
+            x: platform.x + Math.random() * (platform.width - 40), // Position on the platform
+            y: platform.y - 30, // Place on top of the platform
+            width: 40,
+            height: 30,
+            collected: false,
+        }
+        parachutes.push(parachute);
+    }
+    
     lowestPlatformY += 100;
 }
+
+
 
 function restartGame() {
     health = 100;
@@ -147,6 +181,9 @@ function restartGame() {
     lavaTimer = 0;
     onLava = false;
     platforms.length = 0;
+    parachutes.length = 0;
+    parachuteActive = false;
+    parachuteTimer = 0;
     lowestPlatformY = 500;
     for(let i = 0; i < 10; i++) {
         generatePlatform();
@@ -165,7 +202,15 @@ function update() {
         player.velocityX = player.speed;
     }
 
-    player.velocityY += GRAVITY;
+    if (parachuteActive) {
+        player.velocityY += GRAVITY / 2;
+        parachuteTimer--;
+        if (parachuteTimer <= 0) {
+            parachuteActive = false;
+        }
+    } else {
+        player.velocityY += GRAVITY;
+    }
     
     player.x += player.velocityX;
 
@@ -218,6 +263,18 @@ function update() {
     if (player.y > lowestPlatformY - 500) {
         generatePlatform();
     }
+
+    // Check parachute collision
+    parachutes.forEach(parachute => {
+        if (!parachute.collected && checkCollision(player, parachute)) {
+            parachute.collected = true;
+            parachuteActive = true;
+            parachuteTimer = PARACHUTE_DURATION;
+        }
+    });
+
+    // Remove collected parachutes
+    parachutes.splice(0, parachutes.length, ...parachutes.filter(parachute => !parachute.collected));
 }
 
 function gameLoop() {
