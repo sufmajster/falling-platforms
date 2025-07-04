@@ -3,14 +3,14 @@ const ctx = canvas.getContext('2d');
 
 const GAME_WIDTH = canvas.width;
 const GAME_HEIGHT = canvas.height;
-const GRAVITY = 0.5;
+const GRAVITY = 0.3;
 let cameraY = 0;
 
 const platforms = [];
 let lowestPlatformY = 500;
 
 const playerImage = new Image();
-playerImage.src = 'player.png';
+playerImage.src = 'graphics/player.png';
 
 
 const COLORS = {
