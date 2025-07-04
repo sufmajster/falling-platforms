@@ -5,6 +5,8 @@ const GAME_WIDTH = canvas.width;
 const GAME_HEIGHT = canvas.height;
 const GRAVITY = 0.3;
 let cameraY = 0;
+let score = 0;
+let playerLowestY = 100;
 
 const platforms = [];
 let lowestPlatformY = 500;
@@ -54,6 +56,10 @@ function draw() {
 
     ctx.fillStyle = COLORS.player;
     ctx.drawImage(playerImage, player.x, player.y - cameraY, player.width, player.height);
+
+    ctx.fillStyle = 'white';
+    ctx.font = '20px Arial';
+    ctx.fillText(`Score: ${score}`, 10, 30);
 }
 
 function checkCollision(obj1, obj2) {
@@ -98,6 +104,11 @@ function update() {
     }
 
     player.y += player.velocityY;
+
+    if(player.y > playerLowestY) {
+        playerLowestY = player.y;
+        score++;
+    }
 
     platforms.forEach(platform => {
         if(checkCollision(player, platform)) {
