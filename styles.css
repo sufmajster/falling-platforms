@@ -1,0 +1,35 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #000;
+    color: white;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.game-container {
+    text-align: center;
+}
+
+canvas {
+    border: 2px solid #333;
+    background: #000;
+    display: block;
+}
+
+.controls {
+    margin-top: 10px;
+    color: #ccc;
+}
+
+.controls p {
+    margin: 5px 0;
+    font-size: 14px;
+}
