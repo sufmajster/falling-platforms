@@ -6,6 +6,13 @@ const GAME_HEIGHT = canvas.height;
 const GRAVITY = 0.5;
 let cameraY = 0;
 
+const platforms = [];
+let lowestPlatformY = 500;
+
+const playerImage = new Image();
+playerImage.src = 'player.png';
+
+
 const COLORS = {
     background: '#000000',
     platform: '#00FFFF',
@@ -15,15 +22,12 @@ const COLORS = {
 const player = {
     x: 400,
     y: 100,
-    width: 20,
-    height: 50,
+    width: 60,
+    height: 60,
     velocityX: 0,
     velocityY: 0,
     speed: 5,
 }
-
-const platforms = [];
-let lowestPlatformY = 500;
 
 for(let i = 0; i < 10; i++) {
     generatePlatform();
@@ -49,7 +53,7 @@ function draw() {
     });
 
     ctx.fillStyle = COLORS.player;
-    ctx.fillRect(player.x, player.y - cameraY, player.width, player.height);
+    ctx.drawImage(playerImage, player.x, player.y - cameraY, player.width, player.height);
 }
 
 function checkCollision(obj1, obj2) {
@@ -66,7 +70,7 @@ function generatePlatform() {
         x: Math.random() * (GAME_WIDTH - 100),
         y: lowestPlatformY,
         width: 200,
-        height: 20, 
+        height: 40, 
     }
     platforms.push(platform);
     lowestPlatformY += 100;
