@@ -9,6 +9,8 @@ let cameraY = 0;
 let score = 0;
 let currentFloor = 0;
 let health = 100;
+let lavaTimer = 0;
+let onLava = false;
 
 const platforms = [];
 let lowestPlatformY = 500;
@@ -18,6 +20,9 @@ playerImage.src = 'graphics/player.png';
 
 const platformImage = new Image();
 platformImage.src = 'graphics/ground-floor.png';
+
+const lavaImage = new Image();
+lavaImage.src = 'graphics/lava-floor.png';
 
 const COLORS = {
     background: '#000000',
@@ -53,9 +58,9 @@ function draw() {
     ctx.fillStyle = COLORS.background;
     ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
-    ctx.fillStyle = COLORS.platform;
     platforms.forEach(platform => {
-        ctx.drawImage(platformImage, platform.x, platform.y - cameraY, platform.width, platform.height);
+        const image = platform.type === 'lava' ? lavaImage : platformImage;
+        ctx.drawImage(image, platform.x, platform.y - cameraY, platform.width, platform.height);
     });
 
     ctx.fillStyle = COLORS.player;
@@ -81,11 +86,14 @@ function checkCollision(obj1, obj2) {
 }
 
 function generatePlatform() {
+    const isLava = Math.random() < 0.3; 
+    
     const platform = {
         x: Math.random() * (GAME_WIDTH - 100),
         y: lowestPlatformY,
         width: 200,
-        height: 40, 
+        height: 40,
+        type: isLava ? 'lava' : 'normal'
     }
     platforms.push(platform);
     lowestPlatformY += 100;
@@ -120,16 +128,30 @@ function update() {
         currentFloor = newFloor;
     }
 
+    onLava = false;
     platforms.forEach(platform => {
         if(checkCollision(player, platform)) {
             if (player.velocityY > 0 && 
                 player.y + player.height - player.velocityY <= platform.y) {
-                // Gracz spada Z GÓRY na platformę (nie z boku)
                 player.y = platform.y - player.height;
                 player.velocityY = 0;
+                
+                if (platform.type === 'lava') {
+                    onLava = true;
+                }
             }
         }
     })
+    
+    if (onLava) {
+        lavaTimer++;
+        if (lavaTimer >= 6) { 
+            health = Math.max(0, health - 1);
+            lavaTimer = 0;
+        }
+    } else {
+        lavaTimer = 0;
+    }
 
     cameraY = player.y - GAME_HEIGHT / 2;
 
