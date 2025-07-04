@@ -3,7 +3,7 @@ const ctx = canvas.getContext('2d');
 
 const GAME_WIDTH = canvas.width;
 const GAME_HEIGHT = canvas.height;
-const GRAVITY = 0.2;
+const GRAVITY = 4;
 const FLOOR_HEIGHT = 100;
 const PARACHUTE_DURATION = 300;
 
@@ -211,13 +211,13 @@ function update() {
     }
 
     if (parachuteActive) {
-        player.velocityY += GRAVITY / 2;
+        player.velocityY = GRAVITY / 2;
         parachuteTimer--;
         if (parachuteTimer <= 0) {
             parachuteActive = false;
         }
     } else {
-        player.velocityY += GRAVITY;
+        player.velocityY = GRAVITY;
     }
     
     player.x += player.velocityX;
