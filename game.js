@@ -85,6 +85,14 @@ function update() {
     player.velocityY += GRAVITY;
     
     player.x += player.velocityX;
+
+    if (player.x < 0) {
+        player.x = 0;   
+    }
+    if (player.x + player.width > GAME_WIDTH) {
+        player.x = GAME_WIDTH - player.width;
+    }
+
     player.y += player.velocityY;
 
     platforms.forEach(platform => {
