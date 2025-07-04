@@ -3,7 +3,7 @@ const ctx = canvas.getContext('2d');
 
 const GAME_WIDTH = canvas.width;
 const GAME_HEIGHT = canvas.height;
-const GRAVITY = 0.3;
+const GRAVITY = 0.2;
 const FLOOR_HEIGHT = 100;
 const PARACHUTE_DURATION = 300;
 
@@ -92,6 +92,14 @@ function draw() {
         ctx.fillStyle = 'white';
         ctx.font = '20px Arial';
         ctx.fillText(`Score: ${score}`, 10, 30);
+        
+        // Display gravity info for testing
+        const currentGravity = parachuteActive ? GRAVITY / 2 : GRAVITY;
+        ctx.fillText(`Gravity: ${currentGravity.toFixed(2)}`, 10, 60);
+        ctx.fillText(`Parachute: ${parachuteActive ? 'ON' : 'OFF'}`, 10, 90);
+        if (parachuteActive) {
+            ctx.fillText(`Timer: ${parachuteTimer}`, 10, 120);
+        }
         
         ctx.fillStyle = getHealthColor(health);
         ctx.fillRect(GAME_WIDTH - 210, 20, (health / 100) * 200, 20);
