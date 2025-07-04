@@ -67,10 +67,10 @@ function draw() {
 
 function checkCollision(obj1, obj2) {
     return (
-        obj1.x < obj2.x + obj2.width &&
-        obj1.x + obj1.width > obj2.x &&
+        obj1.x < obj2.x + obj2.width - 40 &&
+        obj1.x + obj1.width > obj2.x + 40 && 
         obj1.y < obj2.y + obj2.height &&
-        obj1.y + obj1.height > obj2.y   
+        obj1.y + obj1.height > obj2.y
     );
 }
 
@@ -116,7 +116,9 @@ function update() {
 
     platforms.forEach(platform => {
         if(checkCollision(player, platform)) {
-            if (player.velocityY > 0) {
+            if (player.velocityY > 0 && 
+                player.y + player.height - player.velocityY <= platform.y) {
+                // Gracz spada Z GÓRY na platformę (nie z boku)
                 player.y = platform.y - player.height;
                 player.velocityY = 0;
             }
