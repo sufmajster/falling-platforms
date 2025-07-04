@@ -27,7 +27,6 @@ lavaImage.src = 'graphics/lava-floor.png';
 const COLORS = {
     background: '#000000',
     platform: '#00FFFF',
-    player: '#FF6600'
 };
 
 const player = {
@@ -69,11 +68,23 @@ function draw() {
     ctx.fillStyle = 'white';
     ctx.font = '20px Arial';
     ctx.fillText(`Score: ${score}`, 10, 30);    // Zielony pasek zdrowia w prawym górnym rogu
-    ctx.fillStyle = 'green';
+    ctx.fillStyle = getHealtColor(health);
     ctx.fillRect(GAME_WIDTH - 210, 20, (health / 100) * 200, 20);
     ctx.strokeStyle = 'white';
     ctx.lineWidth = 2;
     ctx.strokeRect(GAME_WIDTH - 210, 20, 200, 20);
+}
+
+function getHealtColor() {
+    if (health > 80) {
+        return 'green';
+    } else if (health > 60) {
+        return 'yellow';
+    } else if (health > 30) {
+        return 'orange';
+    } else {  
+        return 'red';
+    }
 }
 
 function checkCollision(obj1, obj2) {
