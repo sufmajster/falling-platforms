@@ -4,6 +4,7 @@ const ctx = canvas.getContext('2d');
 const GAME_WIDTH = canvas.width;
 const GAME_HEIGHT = canvas.height;
 const GRAVITY = 0.5;
+let cameraY = 0;
 
 const COLORS = {
     background: '#000000',
@@ -45,11 +46,11 @@ function draw() {
 
     ctx.fillStyle = COLORS.platform;
     platforms.forEach(platform => {
-        ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+        ctx.fillRect(platform.x, platform.y - cameraY, platform.width, platform.height);
     });
 
     ctx.fillStyle = COLORS.player;
-    ctx.fillRect(player.x, player.y, player.width, player.height);
+    ctx.fillRect(player.x, player.y - cameraY, player.width, player.height);
 }
 
 function checkCollision(obj1, obj2) {
@@ -86,6 +87,8 @@ function update() {
             }
         }
     })
+
+    cameraY = player.y - GAME_HEIGHT / 2;
 }
 
 function gameLoop() {
