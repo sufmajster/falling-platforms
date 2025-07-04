@@ -15,6 +15,8 @@ let lowestPlatformY = 500;
 const playerImage = new Image();
 playerImage.src = 'graphics/player.png';
 
+const platformImage = new Image();
+platformImage.src = 'graphics/ground-floor.png';
 
 const COLORS = {
     background: '#000000',
@@ -52,7 +54,7 @@ function draw() {
 
     ctx.fillStyle = COLORS.platform;
     platforms.forEach(platform => {
-        ctx.fillRect(platform.x, platform.y - cameraY, platform.width, platform.height);
+        ctx.drawImage(platformImage, platform.x, platform.y - cameraY, platform.width, platform.height);
     });
 
     ctx.fillStyle = COLORS.player;
