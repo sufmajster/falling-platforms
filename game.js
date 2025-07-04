@@ -97,15 +97,43 @@ function draw() {
         const currentGravity = parachuteActive ? GRAVITY / 2 : GRAVITY;
         ctx.fillText(`Gravity: ${currentGravity.toFixed(2)}`, 10, 60);
         ctx.fillText(`Parachute: ${parachuteActive ? 'ON' : 'OFF'}`, 10, 90);
-        if (parachuteActive) {
-            ctx.fillText(`Timer: ${parachuteTimer}`, 10, 120);
-        }
         
         ctx.fillStyle = getHealthColor(health);
         ctx.fillRect(GAME_WIDTH - 210, 20, (health / 100) * 200, 20);
         ctx.strokeStyle = 'white';
         ctx.lineWidth = 2;
         ctx.strokeRect(GAME_WIDTH - 210, 20, 200, 20);
+        
+        // Parachute timer bar (center top)
+        if (parachuteActive) {
+            const barWidth = 300;
+            const barHeight = 15;
+            const barX = (GAME_WIDTH - barWidth) / 2;
+            const barY = 20;
+            
+            // Calculate timer percentage
+            const timerPercentage = parachuteTimer / PARACHUTE_DURATION;
+            const currentBarWidth = barWidth * timerPercentage;
+            
+            // Draw rounded bar (simple approach)
+            ctx.fillStyle = '#4A90E2'; // Nice blue color
+            if (currentBarWidth > 0) {
+                // Draw rounded rectangle using arc for corners
+                const radius = Math.min(8, currentBarWidth / 2, barHeight / 2);
+                ctx.beginPath();
+                ctx.moveTo(barX + radius, barY);
+                ctx.lineTo(barX + currentBarWidth - radius, barY);
+                ctx.arc(barX + currentBarWidth - radius, barY + radius, radius, -Math.PI/2, 0);
+                ctx.lineTo(barX + currentBarWidth, barY + barHeight - radius);
+                ctx.arc(barX + currentBarWidth - radius, barY + barHeight - radius, radius, 0, Math.PI/2);
+                ctx.lineTo(barX + radius, barY + barHeight);
+                ctx.arc(barX + radius, barY + barHeight - radius, radius, Math.PI/2, Math.PI);
+                ctx.lineTo(barX, barY + radius);
+                ctx.arc(barX + radius, barY + radius, radius, Math.PI, -Math.PI/2);
+                ctx.closePath();
+                ctx.fill();
+            }
+        }
         
     } else if (gameState === 'gameOver') {
         ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
