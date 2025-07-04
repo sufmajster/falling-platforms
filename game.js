@@ -8,6 +8,7 @@ const FLOOR_HEIGHT = 100;
 let cameraY = 0;
 let score = 0;
 let currentFloor = 0;
+let health = 100;
 
 const platforms = [];
 let lowestPlatformY = 500;
@@ -62,7 +63,12 @@ function draw() {
 
     ctx.fillStyle = 'white';
     ctx.font = '20px Arial';
-    ctx.fillText(`Score: ${score}`, 10, 30);
+    ctx.fillText(`Score: ${score}`, 10, 30);    // Zielony pasek zdrowia w prawym górnym rogu
+    ctx.fillStyle = 'green';
+    ctx.fillRect(GAME_WIDTH - 210, 20, (health / 100) * 200, 20);
+    ctx.strokeStyle = 'white';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(GAME_WIDTH - 210, 20, 200, 20);
 }
 
 function checkCollision(obj1, obj2) {
