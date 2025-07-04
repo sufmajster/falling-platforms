@@ -48,8 +48,11 @@ const keys = {};
 
 document.addEventListener('keydown', (e) => {
     keys[e.key] = true;
+    
+    if (gameState === 'gameOver' && e.key === ' ') {
+        restartGame();
+    }
 });
-
 document.addEventListener('keyup', (e) => {
     keys[e.key] = false;
 });
@@ -131,6 +134,26 @@ function generatePlatform() {
     platforms.push(platform);
     lowestPlatformY += 100;
 }
+
+function restartGame() {
+    health = 100;
+    score = 0;
+    currentFloor = 0;
+    player.x = 400;
+    player.y = 100;
+    player.velocityX = 0;
+    player.velocityY = 0;
+    cameraY = 0;
+    lavaTimer = 0;
+    onLava = false;
+    platforms.length = 0;
+    lowestPlatformY = 500;
+    for(let i = 0; i < 10; i++) {
+        generatePlatform();
+    }
+    gameState = 'playing';
+}
+
 
 function update() {
     player.velocityX = 0;
