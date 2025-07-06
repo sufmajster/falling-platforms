@@ -39,12 +39,7 @@ export function updatePlayer(keys, gravity, parachuteActive, gameWidth) {
     // Calculate horizontal movement
     const horizontalVelocity = getPlayerHorizontalVelocity(keys);
     
-    // Apply gravity using physics module
     applyGravity(player, gravity, parachuteActive);
-    
-    // Apply horizontal movement with bounds checking
     applyHorizontalMovement(player, horizontalVelocity, gameWidth);
-    
-    // Apply vertical movement
     applyVerticalMovement(player);
 } 
