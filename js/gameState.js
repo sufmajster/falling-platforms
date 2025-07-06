@@ -1,4 +1,5 @@
 import { HEALTH_THRESHOLDS, COLORS, LAVA_CONFIG } from './config.js';
+import { startDamageSound, stopDamageSound } from './assets.js';
 
 // Game state variables
 export let gameState = {
@@ -40,6 +41,9 @@ export function resetGameState() {
     gameState.bombTimer = 0;
     gameState.bombActivationTime = 0;
     gameState.globalTime = 0;
+    
+    // Stop damage sound on reset
+    stopDamageSound();
 }
 
 // Update camera position
@@ -58,19 +62,27 @@ export function updateScore(playerY, floorHeight) {
 
 // Handle lava damage
 export function handleLavaDamage() {
-    // Don't take damage if lava is frozen or bomb is active
-    if (gameState.onLava && !gameState.iceActive && !gameState.bombActive) {
+    // Check if should take damage
+    const shouldTakeDamage = gameState.onLava && !gameState.iceActive && !gameState.bombActive;
+    
+    if (shouldTakeDamage) {
+        // Start damage sound loop
+        startDamageSound();
+        
         gameState.lavaTimer++;
         if (gameState.lavaTimer >= LAVA_CONFIG.damageInterval) {
             gameState.health = Math.max(0, gameState.health - LAVA_CONFIG.damage);
             gameState.lavaTimer = 0;
         }
     } else {
+        // Stop damage sound and reset timer
+        stopDamageSound();
         gameState.lavaTimer = 0;
     }
     
     if (gameState.health <= 0) {
         gameState.state = 'gameOver';
+        stopDamageSound(); // Stop damage sound on game over
     }
 }
 

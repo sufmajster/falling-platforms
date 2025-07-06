@@ -14,6 +14,7 @@ export const assets = {
     explosionSound: null,
     parachuteSound: null,
     iceSound: null,
+    damageSound: null,
     loaded: false
 };
 
@@ -35,7 +36,8 @@ export function loadAssets() {
         const audioToLoad = [
             { key: 'explosionSound', src: 'sound/explosion.mp3' },
             { key: 'parachuteSound', src: 'sound/parachute.mp3' },
-            { key: 'iceSound', src: 'sound/ice.mp3' }
+            { key: 'iceSound', src: 'sound/ice.mp3' },
+            { key: 'damageSound', src: 'sound/damage.mp3' }
         ];
 
         let loadedCount = 0;
@@ -72,7 +74,7 @@ export function loadAssets() {
                 reject(new Error(`Failed to load audio: ${src}`));
             };
             audio.preload = 'auto';
-            audio.loop = key !== 'explosionSound'; // Loop continuous sounds, not explosion
+            audio.loop = key !== 'explosionSound' && key !== 'damageSound'; // Don't loop one-time sounds
             audio.src = src;
             assets[key] = audio;
         });
@@ -82,6 +84,7 @@ export function loadAssets() {
 // Audio management variables
 let currentAudioPriority = 0;
 let currentAudio = null;
+let damageAudio = null; // Separate audio management for damage sound
 
 // Helper function to calculate final volume
 function getFinalVolume(soundType) {
@@ -107,6 +110,32 @@ export function playExplosionSound() {
     audio.play().catch(error => {
         console.warn('Could not play explosion sound:', error);
     });
+}
+
+// Start damage sound (continuous loop)
+export function startDamageSound() {
+    if (!isSoundEnabled('damage') || !assets.damageSound) return;
+    
+    // Don't restart if already playing
+    if (damageAudio && !damageAudio.paused) return;
+    
+    damageAudio = assets.damageSound;
+    damageAudio.volume = getFinalVolume('damage');
+    damageAudio.loop = true;
+    damageAudio.currentTime = 0; // Start from beginning
+    
+    damageAudio.play().catch(error => {
+        console.warn('Could not play damage sound:', error);
+    });
+}
+
+// Stop damage sound
+export function stopDamageSound() {
+    if (damageAudio && !damageAudio.paused) {
+        damageAudio.pause();
+        damageAudio.currentTime = 0;
+    }
+    damageAudio = null;
 }
 
 // Play specific sound with configuration
@@ -174,6 +203,9 @@ export function stopPowerUpAudio() {
     }
     currentAudio = null;
     currentAudioPriority = 0;
+    
+    // Also stop damage sound
+    stopDamageSound();
 }
 
 // Get player image based on parachute and bomb states

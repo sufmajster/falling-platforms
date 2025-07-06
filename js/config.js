@@ -69,6 +69,11 @@ export const AUDIO_CONFIG = {
             volume: 0.2,
             enabled: true,
             loop: true
+        },
+        damage: {
+            volume: 0.15,
+            enabled: true,
+            loop: true
         }
     },
     
