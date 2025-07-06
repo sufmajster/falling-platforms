@@ -1,4 +1,4 @@
-import { COLORS, GAME_WIDTH, GAME_HEIGHT, GRAVITY, PARACHUTE_DURATION } from './config.js';
+import { COLORS, GAME_WIDTH, GAME_HEIGHT, GRAVITY, PARACHUTE_DURATION, ICE_CONFIG } from './config.js';
 import { getPlayerImage, getPlatformImage, assets } from './assets.js';
 
 // Renderer class
@@ -15,9 +15,9 @@ export class Renderer {
     }
 
     // Draw platforms
-    drawPlatforms(platforms, cameraY) {
+    drawPlatforms(platforms, cameraY, isLavaFrozen) {
         platforms.forEach(platform => {
-            const image = getPlatformImage(platform.type);
+            const image = getPlatformImage(platform.type, isLavaFrozen);
             this.ctx.drawImage(
                 image, 
                 platform.x, 
@@ -55,6 +55,21 @@ export class Renderer {
         });
     }
 
+    // Draw ice pickups
+    drawIcePickups(icePickups, cameraY) {
+        icePickups.forEach(icePickup => {
+            if (!icePickup.collected) {
+                this.ctx.drawImage(
+                    assets.icePickupImage, 
+                    icePickup.x, 
+                    icePickup.y - cameraY, 
+                    icePickup.width, 
+                    icePickup.height
+                );
+            }
+        });
+    }
+
     // Draw HUD
     drawHUD(gameState) {
         this.ctx.fillStyle = COLORS.white;
@@ -65,6 +80,7 @@ export class Renderer {
         const currentGravity = gameState.parachuteActive ? GRAVITY / 2 : GRAVITY;
         this.ctx.fillText(`Gravity: ${currentGravity.toFixed(2)}`, 10, 60);
         this.ctx.fillText(`Parachute: ${gameState.parachuteActive ? 'ON' : 'OFF'}`, 10, 90);
+        this.ctx.fillText(`Ice: ${gameState.iceActive ? 'ON' : 'OFF'}`, 10, 120);
     }
 
     // Draw health bar
@@ -114,6 +130,36 @@ export class Renderer {
         }
     }
 
+    // Draw ice timer bar
+    drawIceTimer(iceTimer) {
+        const barWidth = 300;
+        const barHeight = 15;
+        const barX = (GAME_WIDTH - barWidth) / 2;
+        const barY = 45; // Below parachute timer
+        
+        // Calculate timer percentage
+        const timerPercentage = iceTimer / ICE_CONFIG.duration;
+        const currentBarWidth = barWidth * timerPercentage;
+        
+        if (currentBarWidth > 0) {
+            this.ctx.fillStyle = '#87CEEB'; // Sky blue color for ice
+            const radius = Math.min(8, currentBarWidth / 2, barHeight / 2);
+            
+            this.ctx.beginPath();
+            this.ctx.moveTo(barX + radius, barY);
+            this.ctx.lineTo(barX + currentBarWidth - radius, barY);
+            this.ctx.arc(barX + currentBarWidth - radius, barY + radius, radius, -Math.PI/2, 0);
+            this.ctx.lineTo(barX + currentBarWidth, barY + barHeight - radius);
+            this.ctx.arc(barX + currentBarWidth - radius, barY + barHeight - radius, radius, 0, Math.PI/2);
+            this.ctx.lineTo(barX + radius, barY + barHeight);
+            this.ctx.arc(barX + radius, barY + barHeight - radius, radius, Math.PI/2, Math.PI);
+            this.ctx.lineTo(barX, barY + radius);
+            this.ctx.arc(barX + radius, barY + radius, radius, Math.PI, -Math.PI/2);
+            this.ctx.closePath();
+            this.ctx.fill();
+        }
+    }
+
     // Draw game over screen
     drawGameOver(score) {
         // Semi-transparent overlay
@@ -140,18 +186,23 @@ export class Renderer {
     }
 
     // Main render method
-    render(gameState, player, platforms, parachutes, getHealthColor) {
+    render(gameState, player, platforms, parachutes, icePickups, getHealthColor, isLavaFrozen) {
         this.clear();
         
         if (gameState.state === 'playing') {
-            this.drawPlatforms(platforms, gameState.cameraY);
+            this.drawPlatforms(platforms, gameState.cameraY, isLavaFrozen);
             this.drawPlayer(player, gameState.cameraY, gameState.parachuteActive);
             this.drawParachutes(parachutes, gameState.cameraY);
+            this.drawIcePickups(icePickups, gameState.cameraY);
             this.drawHUD(gameState);
             this.drawHealthBar(gameState.health, getHealthColor);
             
             if (gameState.parachuteActive) {
                 this.drawParachuteTimer(gameState.parachuteTimer);
+            }
+            
+            if (gameState.iceActive) {
+                this.drawIceTimer(gameState.iceTimer);
             }
         } else if (gameState.state === 'gameOver') {
             this.drawGameOver(gameState.score);

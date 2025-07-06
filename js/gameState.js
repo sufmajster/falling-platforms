@@ -10,7 +10,9 @@ export let gameState = {
     onLava: false,
     state: 'playing', // 'playing', 'gameOver'
     parachuteActive: false,
-    parachuteTimer: 0
+    parachuteTimer: 0,
+    iceActive: false,
+    iceTimer: 0
 };
 
 // Reset game state
@@ -24,6 +26,8 @@ export function resetGameState() {
     gameState.state = 'playing';
     gameState.parachuteActive = false;
     gameState.parachuteTimer = 0;
+    gameState.iceActive = false;
+    gameState.iceTimer = 0;
 }
 
 // Update camera position
@@ -42,7 +46,8 @@ export function updateScore(playerY, floorHeight) {
 
 // Handle lava damage
 export function handleLavaDamage() {
-    if (gameState.onLava) {
+    // Don't take damage if lava is frozen
+    if (gameState.onLava && !gameState.iceActive) {
         gameState.lavaTimer++;
         if (gameState.lavaTimer >= LAVA_CONFIG.damageInterval) {
             gameState.health = Math.max(0, gameState.health - LAVA_CONFIG.damage);
@@ -89,4 +94,25 @@ export function updateParachuteTimer() {
 // Set lava state
 export function setLavaState(onLava) {
     gameState.onLava = onLava;
+}
+
+// Handle ice power-up activation
+export function activateIce(duration) {
+    gameState.iceActive = true;
+    gameState.iceTimer = duration;
+}
+
+// Update ice timer
+export function updateIceTimer() {
+    if (gameState.iceActive) {
+        gameState.iceTimer--;
+        if (gameState.iceTimer <= 0) {
+            gameState.iceActive = false;
+        }
+    }
+}
+
+// Check if lava is frozen
+export function isLavaFrozen() {
+    return gameState.iceActive;
 } 

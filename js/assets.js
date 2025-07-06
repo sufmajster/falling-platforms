@@ -4,7 +4,9 @@ export const assets = {
     playerWithParachuteImage: null,
     platformImage: null,
     lavaImage: null,
+    iceImage: null,
     parachuteImage: null,
+    icePickupImage: null,
     loaded: false
 };
 
@@ -16,7 +18,9 @@ export function loadAssets() {
             { key: 'playerWithParachuteImage', src: 'img/player-with-parachute.png' },
             { key: 'platformImage', src: 'img/ground-floor.png' },
             { key: 'lavaImage', src: 'img/lava-floor.png' },
-            { key: 'parachuteImage', src: 'img/parachute.png' }
+            { key: 'iceImage', src: 'img/ice-floor.png' },
+            { key: 'parachuteImage', src: 'img/parachute.png' },
+            { key: 'icePickupImage', src: 'img/ice-pickup.png' }
         ];
 
         let loadedCount = 0;
@@ -45,7 +49,10 @@ export function getPlayerImage(parachuteActive) {
     return parachuteActive ? assets.playerWithParachuteImage : assets.playerImage;
 }
 
-// Get platform image based on type
-export function getPlatformImage(type) {
-    return type === 'lava' ? assets.lavaImage : assets.platformImage;
+// Get platform image based on type and frozen state
+export function getPlatformImage(type, isFrozen = false) {
+    if (type === 'lava') {
+        return isFrozen ? assets.iceImage : assets.lavaImage;
+    }
+    return assets.platformImage;
 } 

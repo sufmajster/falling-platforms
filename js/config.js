@@ -30,6 +30,15 @@ export const PARACHUTE_CONFIG = {
     yOffset: 30
 };
 
+// Ice power-up configuration
+export const ICE_CONFIG = {
+    width: 40,
+    height: 30,
+    yOffset: 30,
+    duration: 600, // 10 seconds (60 FPS * 10)
+    chance: 0.15    // 15% chance on normal platforms
+};
+
 // Colors
 export const COLORS = {
     background: '#000000',
