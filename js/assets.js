@@ -92,7 +92,7 @@ export function playExplosionSound() {
     if (assets.explosionSound) {
         // Clone the audio to allow multiple simultaneous plays
         const audio = assets.explosionSound.cloneNode();
-        audio.volume = 0.08; // Reduced volume by half (was 0.3)
+        audio.volume = 0.03;
         audio.play().catch(error => {
             console.warn('Could not play explosion sound:', error);
         });
@@ -130,7 +130,7 @@ export function updatePowerUpAudio(gameState) {
             currentAudioPriority = highestPriority;
             
             // Set volume and loop for continuous sounds
-            currentAudio.volume = 0.2;
+            currentAudio.volume = 0.4;
             currentAudio.loop = true;
             currentAudio.play().catch(error => {
                 console.warn('Could not play power-up sound:', error);
