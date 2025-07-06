@@ -49,6 +49,37 @@ export const BOMB_CONFIG = {
     gravityMultiplier: 2
 };
 
+// Audio configuration
+export const AUDIO_CONFIG = {
+    // Master volume control
+    masterVolume: 1.0,
+    
+    // Individual sound settings
+    sounds: {
+        explosion: {
+            volume: 0.02,
+            enabled: true
+        },
+        parachute: {
+            volume: 0.2,
+            enabled: true,
+            loop: true
+        },
+        ice: {
+            volume: 0.2,
+            enabled: true,
+            loop: true
+        }
+    },
+    
+    // Priority system (higher number = higher priority)
+    priorities: {
+        ice: 1,
+        parachute: 2,
+        bomb: 3 // Note: bomb doesn't have continuous sound, only explosion effects
+    }
+};
+
 // Colors
 export const COLORS = {
     background: '#000000',

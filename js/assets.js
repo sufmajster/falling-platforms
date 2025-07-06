@@ -1,3 +1,5 @@
+import { AUDIO_CONFIG } from './config.js';
+
 // Assets management module
 export const assets = {
     playerImage: null,
@@ -77,42 +79,68 @@ export function loadAssets() {
     });
 }
 
-// Audio priority system
-export const AUDIO_PRIORITIES = {
-    ice: 1,
-    parachute: 2,
-    bomb: 3
-};
-
+// Audio management variables
 let currentAudioPriority = 0;
 let currentAudio = null;
 
+// Helper function to calculate final volume
+function getFinalVolume(soundType) {
+    const soundConfig = AUDIO_CONFIG.sounds[soundType];
+    if (!soundConfig || !soundConfig.enabled) return 0;
+    
+    return soundConfig.volume * AUDIO_CONFIG.masterVolume;
+}
+
+// Helper function to check if sound is enabled
+function isSoundEnabled(soundType) {
+    const soundConfig = AUDIO_CONFIG.sounds[soundType];
+    return soundConfig && soundConfig.enabled;
+}
+
 // Play explosion sound effect (one-time sound)
 export function playExplosionSound() {
-    if (assets.explosionSound) {
-        // Clone the audio to allow multiple simultaneous plays
-        const audio = assets.explosionSound.cloneNode();
-        audio.volume = 0.03;
-        audio.play().catch(error => {
-            console.warn('Could not play explosion sound:', error);
-        });
-    }
+    if (!isSoundEnabled('explosion') || !assets.explosionSound) return;
+    
+    // Clone the audio to allow multiple simultaneous plays
+    const audio = assets.explosionSound.cloneNode();
+    audio.volume = getFinalVolume('explosion');
+    audio.play().catch(error => {
+        console.warn('Could not play explosion sound:', error);
+    });
+}
+
+// Play specific sound with configuration
+function playSound(soundType, audioAsset) {
+    if (!isSoundEnabled(soundType) || !audioAsset) return false;
+    
+    const soundConfig = AUDIO_CONFIG.sounds[soundType];
+    audioAsset.volume = getFinalVolume(soundType);
+    audioAsset.loop = soundConfig.loop || false;
+    
+    audioAsset.play().catch(error => {
+        console.warn(`Could not play ${soundType} sound:`, error);
+    });
+    
+    return true;
 }
 
 // Update audio based on active power-ups with priority system
 export function updatePowerUpAudio(gameState) {
     let highestPriority = 0;
+    let targetSoundType = null;
     let targetAudio = null;
 
     // Check which power-ups are active and find highest priority
     // Note: Bomb doesn't have continuous audio, only explosion when breaking platforms
-    if (gameState.parachuteActive && AUDIO_PRIORITIES.parachute > highestPriority) {
-        highestPriority = AUDIO_PRIORITIES.parachute;
+    if (gameState.parachuteActive && AUDIO_CONFIG.priorities.parachute > highestPriority) {
+        highestPriority = AUDIO_CONFIG.priorities.parachute;
+        targetSoundType = 'parachute';
         targetAudio = assets.parachuteSound;
     }
     
-    if (gameState.iceActive && AUDIO_PRIORITIES.ice > highestPriority) {
-        highestPriority = AUDIO_PRIORITIES.ice;
+    if (gameState.iceActive && AUDIO_CONFIG.priorities.ice > highestPriority) {
+        highestPriority = AUDIO_CONFIG.priorities.ice;
+        targetSoundType = 'ice';
         targetAudio = assets.iceSound;
     }
 
@@ -125,16 +153,12 @@ export function updatePowerUpAudio(gameState) {
         }
 
         // Start new audio if any
-        if (targetAudio && highestPriority > 0) {
-            currentAudio = targetAudio;
-            currentAudioPriority = highestPriority;
-            
-            // Set volume and loop for continuous sounds
-            currentAudio.volume = 0.4;
-            currentAudio.loop = true;
-            currentAudio.play().catch(error => {
-                console.warn('Could not play power-up sound:', error);
-            });
+        if (targetAudio && targetSoundType && highestPriority > 0) {
+            const success = playSound(targetSoundType, targetAudio);
+            if (success) {
+                currentAudio = targetAudio;
+                currentAudioPriority = highestPriority;
+            }
         } else {
             currentAudio = null;
             currentAudioPriority = 0;
