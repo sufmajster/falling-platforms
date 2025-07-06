@@ -11,8 +11,11 @@ export let gameState = {
     state: 'playing', // 'playing', 'gameOver'
     parachuteActive: false,
     parachuteTimer: 0,
+    parachuteActivationTime: 0,
     iceActive: false,
-    iceTimer: 0
+    iceTimer: 0,
+    iceActivationTime: 0,
+    globalTime: 0
 };
 
 // Reset game state
@@ -26,8 +29,11 @@ export function resetGameState() {
     gameState.state = 'playing';
     gameState.parachuteActive = false;
     gameState.parachuteTimer = 0;
+    gameState.parachuteActivationTime = 0;
     gameState.iceActive = false;
     gameState.iceTimer = 0;
+    gameState.iceActivationTime = 0;
+    gameState.globalTime = 0;
 }
 
 // Update camera position
@@ -79,6 +85,7 @@ export function getHealthColor() {
 export function activateParachute(duration) {
     gameState.parachuteActive = true;
     gameState.parachuteTimer = duration;
+    gameState.parachuteActivationTime = gameState.globalTime;
 }
 
 // Update parachute timer
@@ -100,6 +107,7 @@ export function setLavaState(onLava) {
 export function activateIce(duration) {
     gameState.iceActive = true;
     gameState.iceTimer = duration;
+    gameState.iceActivationTime = gameState.globalTime;
 }
 
 // Update ice timer
@@ -115,4 +123,9 @@ export function updateIceTimer() {
 // Check if lava is frozen
 export function isLavaFrozen() {
     return gameState.iceActive;
+}
+
+// Update global game time
+export function updateGlobalTime() {
+    gameState.globalTime++;
 } 

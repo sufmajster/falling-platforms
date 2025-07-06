@@ -1,6 +1,6 @@
-import { GAME_WIDTH, GAME_HEIGHT, GRAVITY, FLOOR_HEIGHT, PARACHUTE_DURATION, ICE_CONFIG } from './config.js';
+import { GAME_WIDTH, GAME_HEIGHT, GRAVITY, FLOOR_HEIGHT, PARACHUTE_CONFIG, ICE_CONFIG } from './config.js';
 import { loadAssets } from './assets.js';
-import { gameState, resetGameState, updateCamera, updateScore, handleLavaDamage, getHealthColor, activateParachute, updateParachuteTimer, setLavaState, activateIce, updateIceTimer, isLavaFrozen } from './gameState.js';
+import { gameState, resetGameState, updateCamera, updateScore, handleLavaDamage, getHealthColor, activateParachute, updateParachuteTimer, setLavaState, activateIce, updateIceTimer, isLavaFrozen, updateGlobalTime } from './gameState.js';
 import { player, resetPlayer, updatePlayer } from './player.js';
 import { platforms, resetPlatforms, checkPlatformGeneration, generatePlatform } from './platforms.js';
 import { parachutes, icePickups, resetParachutes, resetIcePickups, generateParachute, generateIcePickup, checkParachuteCollection, checkIceCollection, cleanupParachutes, cleanupIcePickups } from './powerups.js';
@@ -65,6 +65,9 @@ class Game {
     update() {
         if (gameState.state !== 'playing') return;
 
+        // Update global game time
+        updateGlobalTime();
+
         // Update player movement
         updatePlayer(keys, GRAVITY, gameState.parachuteActive, GAME_WIDTH);
 
@@ -105,7 +108,7 @@ class Game {
         // Check parachute collection
         const parachuteCollected = checkParachuteCollection(player, checkCollision);
         if (parachuteCollected) {
-            activateParachute(PARACHUTE_DURATION);
+            activateParachute(PARACHUTE_CONFIG.duration);
         }
 
         // Check ice collection

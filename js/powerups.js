@@ -10,7 +10,7 @@ export function generateParachute(platform) {
     if (platform.type !== 'normal') return null;
     
     // Check random chance
-    if (Math.random() < PLATFORM_CONFIG.parachuteChance) {
+    if (Math.random() < PARACHUTE_CONFIG.chance) {
         const parachute = {
             x: platform.x + Math.random() * (platform.width - PARACHUTE_CONFIG.width),
             y: platform.y - PARACHUTE_CONFIG.yOffset,

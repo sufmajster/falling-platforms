@@ -1,4 +1,4 @@
-import { COLORS, GAME_WIDTH, GAME_HEIGHT, GRAVITY, PARACHUTE_DURATION, ICE_CONFIG } from './config.js';
+import { COLORS, GAME_WIDTH, GAME_HEIGHT, GRAVITY, PARACHUTE_CONFIG, ICE_CONFIG } from './config.js';
 import { getPlayerImage, getPlatformImage, assets } from './assets.js';
 
 // Renderer class
@@ -100,64 +100,65 @@ export class Renderer {
         this.ctx.strokeRect(barX, barY, barWidth, barHeight);
     }
 
-    // Draw parachute timer bar
-    drawParachuteTimer(parachuteTimer) {
-        const barWidth = 300;
-        const barHeight = 15;
-        const barX = (GAME_WIDTH - barWidth) / 2;
-        const barY = 20;
-        
-        // Calculate timer percentage
-        const timerPercentage = parachuteTimer / PARACHUTE_DURATION;
-        const currentBarWidth = barWidth * timerPercentage;
-        
-        if (currentBarWidth > 0) {
-            this.ctx.fillStyle = COLORS.parachuteBar;
-            const radius = Math.min(8, currentBarWidth / 2, barHeight / 2);
+    // Draw rounded timer bar
+    drawTimerBar(x, y, width, height, currentWidth, color) {
+        if (currentWidth > 0) {
+            this.ctx.fillStyle = color;
+            const radius = Math.min(8, currentWidth / 2, height / 2);
             
             this.ctx.beginPath();
-            this.ctx.moveTo(barX + radius, barY);
-            this.ctx.lineTo(barX + currentBarWidth - radius, barY);
-            this.ctx.arc(barX + currentBarWidth - radius, barY + radius, radius, -Math.PI/2, 0);
-            this.ctx.lineTo(barX + currentBarWidth, barY + barHeight - radius);
-            this.ctx.arc(barX + currentBarWidth - radius, barY + barHeight - radius, radius, 0, Math.PI/2);
-            this.ctx.lineTo(barX + radius, barY + barHeight);
-            this.ctx.arc(barX + radius, barY + barHeight - radius, radius, Math.PI/2, Math.PI);
-            this.ctx.lineTo(barX, barY + radius);
-            this.ctx.arc(barX + radius, barY + radius, radius, Math.PI, -Math.PI/2);
+            this.ctx.moveTo(x + radius, y);
+            this.ctx.lineTo(x + currentWidth - radius, y);
+            this.ctx.arc(x + currentWidth - radius, y + radius, radius, -Math.PI/2, 0);
+            this.ctx.lineTo(x + currentWidth, y + height - radius);
+            this.ctx.arc(x + currentWidth - radius, y + height - radius, radius, 0, Math.PI/2);
+            this.ctx.lineTo(x + radius, y + height);
+            this.ctx.arc(x + radius, y + height - radius, radius, Math.PI/2, Math.PI);
+            this.ctx.lineTo(x, y + radius);
+            this.ctx.arc(x + radius, y + radius, radius, Math.PI, -Math.PI/2);
             this.ctx.closePath();
             this.ctx.fill();
         }
     }
 
-    // Draw ice timer bar
-    drawIceTimer(iceTimer) {
+    // Draw all power-up timers dynamically
+    drawPowerUpTimers(gameState) {
         const barWidth = 300;
         const barHeight = 15;
         const barX = (GAME_WIDTH - barWidth) / 2;
-        const barY = 45; // Below parachute timer
+        const barSpacing = 20; // Space between bars
+        let currentY = 20; // Starting position
+
+        // Create array of active timers with their activation order
+        const activeTimers = [];
         
-        // Calculate timer percentage
-        const timerPercentage = iceTimer / ICE_CONFIG.duration;
-        const currentBarWidth = barWidth * timerPercentage;
-        
-        if (currentBarWidth > 0) {
-            this.ctx.fillStyle = '#87CEEB'; // Sky blue color for ice
-            const radius = Math.min(8, currentBarWidth / 2, barHeight / 2);
-            
-            this.ctx.beginPath();
-            this.ctx.moveTo(barX + radius, barY);
-            this.ctx.lineTo(barX + currentBarWidth - radius, barY);
-            this.ctx.arc(barX + currentBarWidth - radius, barY + radius, radius, -Math.PI/2, 0);
-            this.ctx.lineTo(barX + currentBarWidth, barY + barHeight - radius);
-            this.ctx.arc(barX + currentBarWidth - radius, barY + barHeight - radius, radius, 0, Math.PI/2);
-            this.ctx.lineTo(barX + radius, barY + barHeight);
-            this.ctx.arc(barX + radius, barY + barHeight - radius, radius, Math.PI/2, Math.PI);
-            this.ctx.lineTo(barX, barY + radius);
-            this.ctx.arc(barX + radius, barY + radius, radius, Math.PI, -Math.PI/2);
-            this.ctx.closePath();
-            this.ctx.fill();
+        if (gameState.parachuteActive) {
+            activeTimers.push({
+                type: 'parachute',
+                percentage: gameState.parachuteTimer / PARACHUTE_CONFIG.duration,
+                color: COLORS.parachuteBar,
+                activationTime: gameState.parachuteActivationTime || 0
+            });
         }
+        
+        if (gameState.iceActive) {
+            activeTimers.push({
+                type: 'ice',
+                percentage: gameState.iceTimer / ICE_CONFIG.duration,
+                color: COLORS.iceBar,
+                activationTime: gameState.iceActivationTime || 0
+            });
+        }
+
+        // Sort by activation time (earliest first = top)
+        activeTimers.sort((a, b) => a.activationTime - b.activationTime);
+
+        // Draw timers in order
+        activeTimers.forEach(timer => {
+            const currentBarWidth = barWidth * timer.percentage;
+            this.drawTimerBar(barX, currentY, barWidth, barHeight, currentBarWidth, timer.color);
+            currentY += barSpacing;
+        });
     }
 
     // Draw game over screen
@@ -196,14 +197,7 @@ export class Renderer {
             this.drawIcePickups(icePickups, gameState.cameraY);
             this.drawHUD(gameState);
             this.drawHealthBar(gameState.health, getHealthColor);
-            
-            if (gameState.parachuteActive) {
-                this.drawParachuteTimer(gameState.parachuteTimer);
-            }
-            
-            if (gameState.iceActive) {
-                this.drawIceTimer(gameState.iceTimer);
-            }
+            this.drawPowerUpTimers(gameState);
         } else if (gameState.state === 'gameOver') {
             this.drawGameOver(gameState.score);
         }

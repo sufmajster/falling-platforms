@@ -3,7 +3,6 @@ export const GAME_WIDTH = 800;
 export const GAME_HEIGHT = 600;
 export const GRAVITY = 6;
 export const FLOOR_HEIGHT = 100;
-export const PARACHUTE_DURATION = 300;
 
 // Player configuration
 export const PLAYER_CONFIG = {
@@ -27,7 +26,9 @@ export const PLATFORM_CONFIG = {
 export const PARACHUTE_CONFIG = {
     width: 40,
     height: 30,
-    yOffset: 30
+    yOffset: 30,
+    duration: 300, 
+    chance: 0.2,
 };
 
 // Ice power-up configuration
@@ -35,8 +36,8 @@ export const ICE_CONFIG = {
     width: 40,
     height: 30,
     yOffset: 30,
-    duration: 600, // 10 seconds (60 FPS * 10)
-    chance: 0.15    // 15% chance on normal platforms
+    duration: 300, 
+    chance: 0.15,    
 };
 
 // Colors
@@ -48,7 +49,8 @@ export const COLORS = {
     healthOrange: 'orange',
     healthRed: 'red',
     white: 'white',
-    parachuteBar: '#4A90E2'
+    parachuteBar: 'white',
+    iceBar: '#4A90E2'
 };
 
 // Health thresholds
