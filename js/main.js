@@ -1,9 +1,9 @@
-import { GAME_WIDTH, GAME_HEIGHT, GRAVITY, FLOOR_HEIGHT, PARACHUTE_CONFIG, ICE_CONFIG } from './config.js';
+import { GAME_WIDTH, GAME_HEIGHT, GRAVITY, FLOOR_HEIGHT, PARACHUTE_CONFIG, ICE_CONFIG, BOMB_CONFIG } from './config.js';
 import { loadAssets } from './assets.js';
-import { gameState, resetGameState, updateCamera, updateScore, handleLavaDamage, getHealthColor, activateParachute, updateParachuteTimer, setLavaState, activateIce, updateIceTimer, isLavaFrozen, updateGlobalTime } from './gameState.js';
+import { gameState, resetGameState, updateCamera, updateScore, handleLavaDamage, getHealthColor, activateParachute, updateParachuteTimer, setLavaState, activateIce, updateIceTimer, isLavaFrozen, activateBomb, updateBombTimer, isBombActive, updateGlobalTime } from './gameState.js';
 import { player, resetPlayer, updatePlayer } from './player.js';
 import { platforms, resetPlatforms, checkPlatformGeneration, generatePlatform } from './platforms.js';
-import { parachutes, icePickups, resetParachutes, resetIcePickups, generateParachute, generateIcePickup, checkParachuteCollection, checkIceCollection, cleanupParachutes, cleanupIcePickups } from './powerups.js';
+import { parachutes, icePickups, bombPickups, resetParachutes, resetIcePickups, resetBombPickups, generateParachute, generateIcePickup, generateBombPickup, checkParachuteCollection, checkIceCollection, checkBombCollection, cleanupParachutes, cleanupIcePickups, cleanupBombPickups } from './powerups.js';
 import { initializeInput, keys } from './input.js';
 import { checkCollision, handlePlatformCollision } from './physics.js';
 import { Renderer } from './renderer.js';
@@ -40,11 +40,13 @@ class Game {
         resetPlatforms();
         resetParachutes();
         resetIcePickups();
+        resetBombPickups();
         
         // Generate initial power-ups on platforms
         platforms.forEach(platform => {
             generateParachute(platform);
             generateIcePickup(platform);
+            generateBombPickup(platform);
         });
     }
 
@@ -54,11 +56,13 @@ class Game {
         resetPlatforms();
         resetParachutes();
         resetIcePickups();
+        resetBombPickups();
         
         // Generate initial power-ups
         platforms.forEach(platform => {
             generateParachute(platform);
             generateIcePickup(platform);
+            generateBombPickup(platform);
         });
     }
 
@@ -69,13 +73,16 @@ class Game {
         updateGlobalTime();
 
         // Update player movement
-        updatePlayer(keys, GRAVITY, gameState.parachuteActive, GAME_WIDTH);
+        updatePlayer(keys, GRAVITY, gameState.parachuteActive, gameState.bombActive, BOMB_CONFIG.gravityMultiplier, GAME_WIDTH);
 
         // Update parachute timer
         updateParachuteTimer();
         
         // Update ice timer
         updateIceTimer();
+        
+        // Update bomb timer
+        updateBombTimer();
 
         // Update score based on depth
         updateScore(player.y, FLOOR_HEIGHT);
@@ -84,7 +91,7 @@ class Game {
         let onLava = false;
         platforms.forEach(platform => {
             if (checkCollision(player, platform)) {
-                const isOnLava = handlePlatformCollision(player, platform);
+                const isOnLava = handlePlatformCollision(player, platform, gameState.bombActive);
                 if (isOnLava) {
                     onLava = true;
                 }
@@ -103,6 +110,7 @@ class Game {
         if (newPlatform) {
             generateParachute(newPlatform);
             generateIcePickup(newPlatform);
+            generateBombPickup(newPlatform);
         }
 
         // Check parachute collection
@@ -117,9 +125,16 @@ class Game {
             activateIce(ICE_CONFIG.duration);
         }
 
+        // Check bomb collection
+        const bombCollected = checkBombCollection(player, checkCollision);
+        if (bombCollected) {
+            activateBomb(BOMB_CONFIG.duration);
+        }
+
         // Clean up collected power-ups
         cleanupParachutes();
         cleanupIcePickups();
+        cleanupBombPickups();
     }
 
     render() {
@@ -129,6 +144,7 @@ class Game {
             platforms,
             parachutes,
             icePickups,
+            bombPickups,
             getHealthColor,
             isLavaFrozen()
         );

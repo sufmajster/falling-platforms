@@ -15,6 +15,9 @@ export let gameState = {
     iceActive: false,
     iceTimer: 0,
     iceActivationTime: 0,
+    bombActive: false,
+    bombTimer: 0,
+    bombActivationTime: 0,
     globalTime: 0
 };
 
@@ -33,6 +36,9 @@ export function resetGameState() {
     gameState.iceActive = false;
     gameState.iceTimer = 0;
     gameState.iceActivationTime = 0;
+    gameState.bombActive = false;
+    gameState.bombTimer = 0;
+    gameState.bombActivationTime = 0;
     gameState.globalTime = 0;
 }
 
@@ -52,8 +58,8 @@ export function updateScore(playerY, floorHeight) {
 
 // Handle lava damage
 export function handleLavaDamage() {
-    // Don't take damage if lava is frozen
-    if (gameState.onLava && !gameState.iceActive) {
+    // Don't take damage if lava is frozen or bomb is active
+    if (gameState.onLava && !gameState.iceActive && !gameState.bombActive) {
         gameState.lavaTimer++;
         if (gameState.lavaTimer >= LAVA_CONFIG.damageInterval) {
             gameState.health = Math.max(0, gameState.health - LAVA_CONFIG.damage);
@@ -123,6 +129,28 @@ export function updateIceTimer() {
 // Check if lava is frozen
 export function isLavaFrozen() {
     return gameState.iceActive;
+}
+
+// Handle bomb power-up activation
+export function activateBomb(duration) {
+    gameState.bombActive = true;
+    gameState.bombTimer = duration;
+    gameState.bombActivationTime = gameState.globalTime;
+}
+
+// Update bomb timer
+export function updateBombTimer() {
+    if (gameState.bombActive) {
+        gameState.bombTimer--;
+        if (gameState.bombTimer <= 0) {
+            gameState.bombActive = false;
+        }
+    }
+}
+
+// Check if bomb is active
+export function isBombActive() {
+    return gameState.bombActive;
 }
 
 // Update global game time

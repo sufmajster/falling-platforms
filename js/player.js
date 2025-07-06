@@ -35,11 +35,11 @@ export function getPlayerHorizontalVelocity(keys) {
 }
 
 // Update player position
-export function updatePlayer(keys, gravity, parachuteActive, gameWidth) {
+export function updatePlayer(keys, gravity, parachuteActive, bombActive, bombMultiplier, gameWidth) {
     // Calculate horizontal movement
     const horizontalVelocity = getPlayerHorizontalVelocity(keys);
     
-    applyGravity(player, gravity, parachuteActive);
+    applyGravity(player, gravity, parachuteActive, bombActive, bombMultiplier);
     applyHorizontalMovement(player, horizontalVelocity, gameWidth);
     applyVerticalMovement(player);
 } 

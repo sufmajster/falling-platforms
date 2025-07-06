@@ -1,8 +1,9 @@
-import { PARACHUTE_CONFIG, PLATFORM_CONFIG, ICE_CONFIG } from './config.js';
+import { PARACHUTE_CONFIG, PLATFORM_CONFIG, ICE_CONFIG, BOMB_CONFIG } from './config.js';
 
 // Power-ups arrays
 export const parachutes = [];
 export const icePickups = [];
+export const bombPickups = [];
 
 // Generate parachute on platform
 export function generateParachute(platform) {
@@ -48,6 +49,28 @@ export function generateIcePickup(platform) {
     return null;
 }
 
+// Generate bomb pickup on platform
+export function generateBombPickup(platform) {
+    // Only generate on normal platforms
+    if (platform.type !== 'normal') return null;
+    
+    // Check random chance
+    if (Math.random() < BOMB_CONFIG.chance) {
+        const bombPickup = {
+            x: platform.x + Math.random() * (platform.width - BOMB_CONFIG.width),
+            y: platform.y - BOMB_CONFIG.yOffset,
+            width: BOMB_CONFIG.width,
+            height: BOMB_CONFIG.height,
+            collected: false
+        };
+        
+        bombPickups.push(bombPickup);
+        return bombPickup;
+    }
+    
+    return null;
+}
+
 // Check parachute collection
 export function checkParachuteCollection(player, checkCollision) {
     let collected = false;
@@ -76,6 +99,20 @@ export function checkIceCollection(player, checkCollision) {
     return collected;
 }
 
+// Check bomb pickup collection
+export function checkBombCollection(player, checkCollision) {
+    let collected = false;
+    
+    bombPickups.forEach(bombPickup => {
+        if (!bombPickup.collected && checkCollision(player, bombPickup)) {
+            bombPickup.collected = true;
+            collected = true;
+        }
+    });
+    
+    return collected;
+}
+
 // Clean up collected parachutes
 export function cleanupParachutes() {
     for (let i = parachutes.length - 1; i >= 0; i--) {
@@ -94,6 +131,15 @@ export function cleanupIcePickups() {
     }
 }
 
+// Clean up collected bomb pickups
+export function cleanupBombPickups() {
+    for (let i = bombPickups.length - 1; i >= 0; i--) {
+        if (bombPickups[i].collected) {
+            bombPickups.splice(i, 1);
+        }
+    }
+}
+
 // Reset parachutes
 export function resetParachutes() {
     parachutes.length = 0;
@@ -102,6 +148,11 @@ export function resetParachutes() {
 // Reset ice pickups
 export function resetIcePickups() {
     icePickups.length = 0;
+}
+
+// Reset bomb pickups
+export function resetBombPickups() {
+    bombPickups.length = 0;
 }
 
 // Get parachutes within view
@@ -121,5 +172,15 @@ export function getIcePickupsInView(cameraY, gameHeight) {
         !icePickup.collected &&
         icePickup.y > cameraY - buffer && 
         icePickup.y < cameraY + gameHeight + buffer
+    );
+}
+
+// Get bomb pickups within view
+export function getBombPickupsInView(cameraY, gameHeight) {
+    const buffer = 200;
+    return bombPickups.filter(bombPickup => 
+        !bombPickup.collected &&
+        bombPickup.y > cameraY - buffer && 
+        bombPickup.y < cameraY + gameHeight + buffer
     );
 } 

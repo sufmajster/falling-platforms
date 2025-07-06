@@ -17,12 +17,16 @@ export function isLandingOnPlatform(player, platform) {
 }
 
 // Apply gravity to player
-export function applyGravity(player, gravity, parachuteActive) {
-    if (parachuteActive) {
-        player.velocityY = gravity / 2;
-    } else {
-        player.velocityY = gravity;
+export function applyGravity(player, gravity, parachuteActive, bombActive, bombMultiplier) {
+    let finalGravity = gravity;
+    
+    if (bombActive) {
+        finalGravity = gravity * bombMultiplier;
+    } else if (parachuteActive) {
+        finalGravity = gravity / 2;
     }
+    
+    player.velocityY = finalGravity;
 }
 
 // Apply horizontal movement
@@ -44,11 +48,21 @@ export function applyVerticalMovement(player) {
 }
 
 // Handle platform collision
-export function handlePlatformCollision(player, platform) {
+export function handlePlatformCollision(player, platform, bombActive) {
+    // If bomb is active, player pierces through platforms
+    if (bombActive) {
+        return platform.type === 'lava'; // Still return lava state for visual effects
+    }
+    
     if (isLandingOnPlatform(player, platform)) {
         player.y = platform.y - player.height;
         player.velocityY = 0;
         return platform.type === 'lava';
     }
     return false;
+}
+
+// Check if platform should be pierced by bomb
+export function shouldPiercePlatform(bombActive) {
+    return bombActive;
 } 

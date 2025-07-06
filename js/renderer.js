@@ -1,4 +1,4 @@
-import { COLORS, GAME_WIDTH, GAME_HEIGHT, GRAVITY, PARACHUTE_CONFIG, ICE_CONFIG } from './config.js';
+import { COLORS, GAME_WIDTH, GAME_HEIGHT, GRAVITY, PARACHUTE_CONFIG, ICE_CONFIG, BOMB_CONFIG } from './config.js';
 import { getPlayerImage, getPlatformImage, assets } from './assets.js';
 
 // Renderer class
@@ -29,8 +29,8 @@ export class Renderer {
     }
 
     // Draw player
-    drawPlayer(player, cameraY, parachuteActive) {
-        const image = getPlayerImage(parachuteActive);
+    drawPlayer(player, cameraY, parachuteActive, bombActive) {
+        const image = getPlayerImage(parachuteActive, bombActive);
         this.ctx.drawImage(
             image, 
             player.x, 
@@ -70,6 +70,21 @@ export class Renderer {
         });
     }
 
+    // Draw bomb pickups
+    drawBombPickups(bombPickups, cameraY) {
+        bombPickups.forEach(bombPickup => {
+            if (!bombPickup.collected) {
+                this.ctx.drawImage(
+                    assets.bombPickupImage, 
+                    bombPickup.x, 
+                    bombPickup.y - cameraY, 
+                    bombPickup.width, 
+                    bombPickup.height
+                );
+            }
+        });
+    }
+
     // Draw HUD
     drawHUD(gameState) {
         this.ctx.fillStyle = COLORS.white;
@@ -77,10 +92,17 @@ export class Renderer {
         this.ctx.fillText(`Score: ${gameState.score}`, 10, 30);
         
         // Debug info
-        const currentGravity = gameState.parachuteActive ? GRAVITY / 2 : GRAVITY;
+        let currentGravity = GRAVITY;
+        if (gameState.bombActive) {
+            currentGravity = GRAVITY * 3;
+        } else if (gameState.parachuteActive) {
+            currentGravity = GRAVITY / 2;
+        }
+        
         this.ctx.fillText(`Gravity: ${currentGravity.toFixed(2)}`, 10, 60);
         this.ctx.fillText(`Parachute: ${gameState.parachuteActive ? 'ON' : 'OFF'}`, 10, 90);
         this.ctx.fillText(`Ice: ${gameState.iceActive ? 'ON' : 'OFF'}`, 10, 120);
+        this.ctx.fillText(`Bomb: ${gameState.bombActive ? 'ON' : 'OFF'}`, 10, 150);
     }
 
     // Draw health bar
@@ -149,6 +171,15 @@ export class Renderer {
                 activationTime: gameState.iceActivationTime || 0
             });
         }
+        
+        if (gameState.bombActive) {
+            activeTimers.push({
+                type: 'bomb',
+                percentage: gameState.bombTimer / BOMB_CONFIG.duration,
+                color: COLORS.bombBar,
+                activationTime: gameState.bombActivationTime || 0
+            });
+        }
 
         // Sort by activation time (earliest first = top)
         activeTimers.sort((a, b) => a.activationTime - b.activationTime);
@@ -187,14 +218,15 @@ export class Renderer {
     }
 
     // Main render method
-    render(gameState, player, platforms, parachutes, icePickups, getHealthColor, isLavaFrozen) {
+    render(gameState, player, platforms, parachutes, icePickups, bombPickups, getHealthColor, isLavaFrozen) {
         this.clear();
         
         if (gameState.state === 'playing') {
             this.drawPlatforms(platforms, gameState.cameraY, isLavaFrozen);
-            this.drawPlayer(player, gameState.cameraY, gameState.parachuteActive);
+            this.drawPlayer(player, gameState.cameraY, gameState.parachuteActive, gameState.bombActive);
             this.drawParachutes(parachutes, gameState.cameraY);
             this.drawIcePickups(icePickups, gameState.cameraY);
+            this.drawBombPickups(bombPickups, gameState.cameraY);
             this.drawHUD(gameState);
             this.drawHealthBar(gameState.health, getHealthColor);
             this.drawPowerUpTimers(gameState);

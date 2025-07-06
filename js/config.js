@@ -39,6 +39,16 @@ export const ICE_CONFIG = {
     chance: 0.15,    
 };
 
+// Bomb power-up configuration
+export const BOMB_CONFIG = {
+    width: 40,
+    height: 30,
+    yOffset: 30,
+    duration: 150, // 5 seconds (60 FPS * 5)
+    chance: 0.1,   // 10% chance - rare because it's powerful
+    gravityMultiplier: 2
+};
+
 // Colors
 export const COLORS = {
     background: '#000000',
@@ -49,7 +59,8 @@ export const COLORS = {
     healthRed: 'red',
     white: 'white',
     parachuteBar: 'white',
-    iceBar: '#4A90E2'
+    iceBar: '#4A90E2',
+    bombBar: '#FF0000'
 };
 
 // Health thresholds
