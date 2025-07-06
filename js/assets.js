@@ -92,7 +92,7 @@ export function playExplosionSound() {
     if (assets.explosionSound) {
         // Clone the audio to allow multiple simultaneous plays
         const audio = assets.explosionSound.cloneNode();
-        audio.volume = 0.3; // Adjust volume (0.0 to 1.0)
+        audio.volume = 0.08; // Reduced volume by half (was 0.3)
         audio.play().catch(error => {
             console.warn('Could not play explosion sound:', error);
         });
