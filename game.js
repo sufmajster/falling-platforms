@@ -3,7 +3,7 @@ const ctx = canvas.getContext('2d');
 
 const GAME_WIDTH = canvas.width;
 const GAME_HEIGHT = canvas.height;
-const GRAVITY = 4;
+const GRAVITY = 6;
 const FLOOR_HEIGHT = 100;
 const PARACHUTE_DURATION = 300;
 
