@@ -9,6 +9,7 @@ export const assets = {
     parachuteImage: null,
     icePickupImage: null,
     bombPickupImage: null,
+    explosionSound: null,
     loaded: false
 };
 
@@ -27,14 +28,19 @@ export function loadAssets() {
             { key: 'bombPickupImage', src: 'img/bomb-pickup.png' }
         ];
 
-        let loadedCount = 0;
-        const totalImages = imagesToLoad.length;
+        const audioToLoad = [
+            { key: 'explosionSound', src: 'sound/explosion.mp3' }
+        ];
 
+        let loadedCount = 0;
+        const totalAssets = imagesToLoad.length + audioToLoad.length;
+
+        // Load images
         imagesToLoad.forEach(({ key, src }) => {
             const img = new Image();
             img.onload = () => {
                 loadedCount++;
-                if (loadedCount === totalImages) {
+                if (loadedCount === totalAssets) {
                     assets.loaded = true;
                     resolve();
                 }
@@ -45,7 +51,37 @@ export function loadAssets() {
             img.src = src;
             assets[key] = img;
         });
+
+        // Load audio
+        audioToLoad.forEach(({ key, src }) => {
+            const audio = new Audio();
+            audio.oncanplaythrough = () => {
+                loadedCount++;
+                if (loadedCount === totalAssets) {
+                    assets.loaded = true;
+                    resolve();
+                }
+            };
+            audio.onerror = () => {
+                reject(new Error(`Failed to load audio: ${src}`));
+            };
+            audio.preload = 'auto';
+            audio.src = src;
+            assets[key] = audio;
+        });
     });
+}
+
+// Play explosion sound effect
+export function playExplosionSound() {
+    if (assets.explosionSound) {
+        // Clone the audio to allow multiple simultaneous plays
+        const audio = assets.explosionSound.cloneNode();
+        audio.volume = 0.3; // Adjust volume (0.0 to 1.0)
+        audio.play().catch(error => {
+            console.warn('Could not play explosion sound:', error);
+        });
+    }
 }
 
 // Get player image based on parachute and bomb states

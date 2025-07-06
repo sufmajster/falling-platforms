@@ -2,11 +2,12 @@ import { GAME_WIDTH, GAME_HEIGHT, GRAVITY, FLOOR_HEIGHT, PARACHUTE_CONFIG, ICE_C
 import { loadAssets } from './assets.js';
 import { gameState, resetGameState, updateCamera, updateScore, handleLavaDamage, getHealthColor, activateParachute, updateParachuteTimer, setLavaState, activateIce, updateIceTimer, isLavaFrozen, activateBomb, updateBombTimer, isBombActive, updateGlobalTime } from './gameState.js';
 import { player, resetPlayer, updatePlayer } from './player.js';
-import { platforms, resetPlatforms, checkPlatformGeneration, generatePlatform } from './platforms.js';
+import { platforms, resetPlatforms, checkPlatformGeneration, generatePlatform, resetPlatformPiercedFlags } from './platforms.js';
 import { parachutes, icePickups, bombPickups, resetParachutes, resetIcePickups, resetBombPickups, generateParachute, generateIcePickup, generateBombPickup, checkParachuteCollection, checkIceCollection, checkBombCollection, cleanupParachutes, cleanupIcePickups, cleanupBombPickups } from './powerups.js';
 import { initializeInput, keys } from './input.js';
 import { checkCollision, handlePlatformCollision } from './physics.js';
 import { Renderer } from './renderer.js';
+import { updateParticles, clearParticles } from './particles.js';
 
 // Game class
 class Game {
@@ -57,6 +58,7 @@ class Game {
         resetParachutes();
         resetIcePickups();
         resetBombPickups();
+        clearParticles(); // Clear particles on restart
         
         // Generate initial power-ups
         platforms.forEach(platform => {
@@ -72,6 +74,9 @@ class Game {
         // Update global game time
         updateGlobalTime();
 
+        // Store previous bomb state to detect when bomb ends
+        const wasBombActive = gameState.bombActive;
+
         // Update player movement
         updatePlayer(keys, GRAVITY, gameState.parachuteActive, gameState.bombActive, BOMB_CONFIG.gravityMultiplier, GAME_WIDTH);
 
@@ -83,6 +88,14 @@ class Game {
         
         // Update bomb timer
         updateBombTimer();
+
+        // Reset pierced flags when bomb effect ends
+        if (wasBombActive && !gameState.bombActive) {
+            resetPlatformPiercedFlags();
+        }
+
+        // Update particles
+        updateParticles();
 
         // Update score based on depth
         updateScore(player.y, FLOOR_HEIGHT);

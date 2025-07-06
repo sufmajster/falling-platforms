@@ -13,7 +13,8 @@ export function generatePlatform() {
         y: lowestPlatformY,
         width: PLATFORM_CONFIG.width,
         height: PLATFORM_CONFIG.height,
-        type: isLava ? 'lava' : 'normal'
+        type: isLava ? 'lava' : 'normal',
+        pierced: false // Flag to track if platform was pierced by bomb
     };
     
     platforms.push(platform);
@@ -45,6 +46,13 @@ export function resetPlatforms() {
     platforms.length = 0;
     lowestPlatformY = 500;
     initializePlatforms();
+}
+
+// Reset all platform pierced flags (called when bomb effect ends)
+export function resetPlatformPiercedFlags() {
+    platforms.forEach(platform => {
+        platform.pierced = false;
+    });
 }
 
 // Get platforms within view

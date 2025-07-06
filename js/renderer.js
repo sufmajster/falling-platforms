@@ -1,5 +1,6 @@
 import { COLORS, GAME_WIDTH, GAME_HEIGHT, GRAVITY, PARACHUTE_CONFIG, ICE_CONFIG, BOMB_CONFIG } from './config.js';
 import { getPlayerImage, getPlatformImage, assets } from './assets.js';
+import { drawParticles } from './particles.js';
 
 // Renderer class
 export class Renderer {
@@ -227,6 +228,10 @@ export class Renderer {
             this.drawParachutes(parachutes, gameState.cameraY);
             this.drawIcePickups(icePickups, gameState.cameraY);
             this.drawBombPickups(bombPickups, gameState.cameraY);
+            
+            // Draw particles
+            drawParticles(this.ctx, gameState.cameraY);
+            
             this.drawHUD(gameState);
             this.drawHealthBar(gameState.health, getHealthColor);
             this.drawPowerUpTimers(gameState);

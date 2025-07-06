@@ -1,4 +1,5 @@
 import { COLLISION_MARGIN } from './config.js';
+import { createPlatformBreakParticles } from './particles.js';
 
 // Check collision between two objects
 export function checkCollision(obj1, obj2) {
@@ -51,6 +52,17 @@ export function applyVerticalMovement(player) {
 export function handlePlatformCollision(player, platform, bombActive) {
     // If bomb is active, player pierces through platforms
     if (bombActive) {
+        // Check if player is currently intersecting with platform and hasn't been pierced yet
+        if (checkCollision(player, platform) && !platform.pierced) {
+            // Generate particle effect when piercing through for the first time
+            createPlatformBreakParticles(
+                platform.x, 
+                platform.y, 
+                platform.width, 
+                platform.type
+            );
+            platform.pierced = true; // Mark platform as pierced
+        }
         return platform.type === 'lava'; // Still return lava state for visual effects
     }
     
