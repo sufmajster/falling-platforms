@@ -12,11 +12,11 @@ export const assets = {
 export function loadAssets() {
     return new Promise((resolve, reject) => {
         const imagesToLoad = [
-            { key: 'playerImage', src: 'graphics/player.png' },
-            { key: 'playerWithParachuteImage', src: 'graphics/player-with-parachute.png' },
-            { key: 'platformImage', src: 'graphics/ground-floor.png' },
-            { key: 'lavaImage', src: 'graphics/lava-floor.png' },
-            { key: 'parachuteImage', src: 'graphics/parachute.png' }
+            { key: 'playerImage', src: 'img/player.png' },
+            { key: 'playerWithParachuteImage', src: 'img/player-with-parachute.png' },
+            { key: 'platformImage', src: 'img/ground-floor.png' },
+            { key: 'lavaImage', src: 'img/lava-floor.png' },
+            { key: 'parachuteImage', src: 'img/parachute.png' }
         ];
 
         let loadedCount = 0;

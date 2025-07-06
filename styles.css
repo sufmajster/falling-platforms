@@ -18,16 +18,9 @@ body {
     text-align: center;
 }
 
-.game-title {
-    color: white;
-    font-size: 24px;
-    margin-block: 20px;
-}
-
-.game-author {
-    color: white;
-    font-size: 14px;
-    margin-block: 20px;
+.game-logo {
+    max-height: 100px;
+    margin-block: 10px;
 }
 
 canvas {
