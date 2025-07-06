@@ -1,4 +1,5 @@
 import { PLAYER_CONFIG } from './config.js';
+import { applyGravity, applyHorizontalMovement, applyVerticalMovement } from './physics.js';
 
 // Player object
 export const player = {
@@ -38,22 +39,12 @@ export function updatePlayer(keys, gravity, parachuteActive, gameWidth) {
     // Calculate horizontal movement
     const horizontalVelocity = getPlayerHorizontalVelocity(keys);
     
-    // Apply gravity
-    if (parachuteActive) {
-        player.velocityY = gravity / 2;
-    } else {
-        player.velocityY = gravity;
-    }
+    // Apply gravity using physics module
+    applyGravity(player, gravity, parachuteActive);
     
     // Apply horizontal movement with bounds checking
-    player.x += horizontalVelocity;
-    if (player.x < 0) {
-        player.x = 0;
-    }
-    if (player.x + player.width > gameWidth) {
-        player.x = gameWidth - player.width;
-    }
+    applyHorizontalMovement(player, horizontalVelocity, gameWidth);
     
     // Apply vertical movement
-    player.y += player.velocityY;
+    applyVerticalMovement(player);
 } 
