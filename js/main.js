@@ -19,9 +19,7 @@ class Game {
 
     async init() {
         try {
-            console.log('Loading assets...');
             await loadAssets();
-            console.log('Assets loaded successfully');
             
             this.setupGame();
             this.start();
@@ -58,8 +56,6 @@ class Game {
         platforms.forEach(platform => {
             generateParachute(platform);
         });
-        
-        console.log('Game restarted');
     }
 
     update() {
@@ -128,18 +124,14 @@ class Game {
 
     start() {
         this.isRunning = true;
-        console.log('Game started');
         this.gameLoop();
     }
 
     stop() {
         this.isRunning = false;
-        console.log('Game stopped');
     }
 }
 
-// Initialize game when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('Starting Falling Platforms Game...');
     new Game();
 }); 
