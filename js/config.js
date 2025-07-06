@@ -18,7 +18,6 @@ export const PLATFORM_CONFIG = {
     width: 200,
     height: 40,
     lavaChance: 0.3,
-    parachuteChance: 0.2,
     spacing: 100
 };
 
@@ -28,7 +27,7 @@ export const PARACHUTE_CONFIG = {
     height: 30,
     yOffset: 30,
     duration: 300, 
-    chance: 0.2,
+    chance: 0.15,
 };
 
 // Ice power-up configuration
