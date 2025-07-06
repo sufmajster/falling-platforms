@@ -1,5 +1,5 @@
 import { GAME_WIDTH, GAME_HEIGHT, GRAVITY, FLOOR_HEIGHT, PARACHUTE_CONFIG, ICE_CONFIG, BOMB_CONFIG } from './config.js';
-import { loadAssets } from './assets.js';
+import { loadAssets, updatePowerUpAudio, stopPowerUpAudio } from './assets.js';
 import { gameState, resetGameState, updateCamera, updateScore, handleLavaDamage, getHealthColor, activateParachute, updateParachuteTimer, setLavaState, activateIce, updateIceTimer, isLavaFrozen, activateBomb, updateBombTimer, isBombActive, updateGlobalTime } from './gameState.js';
 import { player, resetPlayer, updatePlayer } from './player.js';
 import { platforms, resetPlatforms, checkPlatformGeneration, generatePlatform, resetPlatformPiercedFlags } from './platforms.js';
@@ -59,6 +59,7 @@ class Game {
         resetIcePickups();
         resetBombPickups();
         clearParticles(); // Clear particles on restart
+        stopPowerUpAudio(); // Stop all audio on restart
         
         // Generate initial power-ups
         platforms.forEach(platform => {
@@ -74,8 +75,10 @@ class Game {
         // Update global game time
         updateGlobalTime();
 
-        // Store previous bomb state to detect when bomb ends
+        // Store previous power-up states to detect changes
         const wasBombActive = gameState.bombActive;
+        const wasParachuteActive = gameState.parachuteActive;
+        const wasIceActive = gameState.iceActive;
 
         // Update player movement
         updatePlayer(keys, GRAVITY, gameState.parachuteActive, gameState.bombActive, BOMB_CONFIG.gravityMultiplier, GAME_WIDTH);
@@ -93,6 +96,9 @@ class Game {
         if (wasBombActive && !gameState.bombActive) {
             resetPlatformPiercedFlags();
         }
+
+        // Update audio based on current power-up states
+        updatePowerUpAudio(gameState);
 
         // Update particles
         updateParticles();
@@ -178,6 +184,7 @@ class Game {
 
     stop() {
         this.isRunning = false;
+        stopPowerUpAudio(); // Stop audio when game stops
     }
 }
 

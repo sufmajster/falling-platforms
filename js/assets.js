@@ -10,6 +10,8 @@ export const assets = {
     icePickupImage: null,
     bombPickupImage: null,
     explosionSound: null,
+    parachuteSound: null,
+    iceSound: null,
     loaded: false
 };
 
@@ -29,7 +31,9 @@ export function loadAssets() {
         ];
 
         const audioToLoad = [
-            { key: 'explosionSound', src: 'sound/explosion.mp3' }
+            { key: 'explosionSound', src: 'sound/explosion.mp3' },
+            { key: 'parachuteSound', src: 'sound/parachute.mp3' },
+            { key: 'iceSound', src: 'sound/ice.mp3' }
         ];
 
         let loadedCount = 0;
@@ -66,13 +70,24 @@ export function loadAssets() {
                 reject(new Error(`Failed to load audio: ${src}`));
             };
             audio.preload = 'auto';
+            audio.loop = key !== 'explosionSound'; // Loop continuous sounds, not explosion
             audio.src = src;
             assets[key] = audio;
         });
     });
 }
 
-// Play explosion sound effect
+// Audio priority system
+export const AUDIO_PRIORITIES = {
+    ice: 1,
+    parachute: 2,
+    bomb: 3
+};
+
+let currentAudioPriority = 0;
+let currentAudio = null;
+
+// Play explosion sound effect (one-time sound)
 export function playExplosionSound() {
     if (assets.explosionSound) {
         // Clone the audio to allow multiple simultaneous plays
@@ -82,6 +97,59 @@ export function playExplosionSound() {
             console.warn('Could not play explosion sound:', error);
         });
     }
+}
+
+// Update audio based on active power-ups with priority system
+export function updatePowerUpAudio(gameState) {
+    let highestPriority = 0;
+    let targetAudio = null;
+
+    // Check which power-ups are active and find highest priority
+    // Note: Bomb doesn't have continuous audio, only explosion when breaking platforms
+    if (gameState.parachuteActive && AUDIO_PRIORITIES.parachute > highestPriority) {
+        highestPriority = AUDIO_PRIORITIES.parachute;
+        targetAudio = assets.parachuteSound;
+    }
+    
+    if (gameState.iceActive && AUDIO_PRIORITIES.ice > highestPriority) {
+        highestPriority = AUDIO_PRIORITIES.ice;
+        targetAudio = assets.iceSound;
+    }
+
+    // If priority changed, switch audio
+    if (highestPriority !== currentAudioPriority) {
+        // Stop current audio
+        if (currentAudio && !currentAudio.paused) {
+            currentAudio.pause();
+            currentAudio.currentTime = 0;
+        }
+
+        // Start new audio if any
+        if (targetAudio && highestPriority > 0) {
+            currentAudio = targetAudio;
+            currentAudioPriority = highestPriority;
+            
+            // Set volume and loop for continuous sounds
+            currentAudio.volume = 0.2;
+            currentAudio.loop = true;
+            currentAudio.play().catch(error => {
+                console.warn('Could not play power-up sound:', error);
+            });
+        } else {
+            currentAudio = null;
+            currentAudioPriority = 0;
+        }
+    }
+}
+
+// Stop all power-up audio
+export function stopPowerUpAudio() {
+    if (currentAudio && !currentAudio.paused) {
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+    }
+    currentAudio = null;
+    currentAudioPriority = 0;
 }
 
 // Get player image based on parachute and bomb states
